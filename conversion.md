@@ -1,5 +1,17 @@
 # OEC -> xDSL conversion notes
 
+## MLIR Stndard dialect splitting:
+
+### `func`
+
+Replace `(^\s*)func(\s)` by `$1func.func$2`
+
+## arith
+
+Replace `= (constant|divf|addf|mulf|negf|subf|cmpf|select)` by `= arith.$1`
+
+- Replace `arith.cmpf "([^"]+)"` by `arith.cmpf $1` (Comparison mnemonic is now an identifier)
+
 ## Custom syntax conversion regexes:
 
 ### `stencil.apply`
@@ -25,8 +37,3 @@ Replace `stencil\.store_result (%[^ ]+) : \([^\)]+\) -> (!stencil.result.*)` by 
 (No parenthesis eliding on single result)
 
 Replace `stencil\.apply (\([^/)]*\)) -> \(?([^){]*)\)? \{` by `stencil.apply $1 -> ($2) {`
-
-### stencil.access
-
-- OEC: `stencil.access %arg15 [_, 0, _] : !stencil.temp<0x?x0xf64>`
-- xDSL: `stencil.access %arg15 [0] attributes {"offset_mapping" = #stencil.index[0]} : !stencil.temp<?xf64>`
