@@ -2,39 +2,47 @@ XDSL_PIPELINE = """\
 stencil-storage-materialization,\
 stencil-shape-inference,\
 convert-stencil-to-ll-mlir,\
+canonicalize,\
 scf-parallel-loop-tiling{\
-    parallel-loop-tile-sizes=64,0\
+parallel-loop-tile-sizes=32,4,8\
 },\
 printf-to-llvm,\
-canonicalize\
-""".translate(
-    str.maketrans("", "", " \n\t\r")
-)
+canonicalize,\
+memref-to-gpu,\
+gpu-map-parallel-loops\
+"""
 MLIR_PIPELINE = """\
+canonicalize,
+convert-parallel-loops-to-gpu,\
+lower-affine,\
 canonicalize,\
 cse,\
-loop-invariant-code-motion,\
-canonicalize,\
+fold-memref-alias-ops,\
+gpu-launch-sink-index-computations,\
+gpu-kernel-outlining,\
+canonicalize{region-simplify},\
 cse,\
-loop-invariant-code-motion,\
-cse,\
-canonicalize,\
 fold-memref-alias-ops,\
 expand-strided-metadata,\
-loop-invariant-code-motion,\
 lower-affine,\
+canonicalize,\
+cse,\
+func.func(gpu-async-region),\
+canonicalize,\
+cse,\
+convert-arith-to-llvm{index-bitwidth=64},\
 convert-scf-to-cf,\
-convert-math-to-llvm,\
-finalize-memref-to-llvm,\
-convert-func-to-llvm{\
-    use-bare-ptr-memref-call-conv\
-},\
-convert-func-to-llvm,\
+convert-cf-to-llvm{index-bitwidth=64},\
+canonicalize,\
+cse,\
+convert-func-to-llvm{use-bare-ptr-memref-call-conv},\
+nvvm-attach-target{O=3 ftz fast chip=sm_$(nvidia-smi --query-gpu=compute_cap --format=csv,noheader | sed -e 's/\.//g')},\
+gpu.module(convert-gpu-to-nvvm,canonicalize,cse),\
+gpu-to-llvm,\
+gpu-module-to-binary,\
 canonicalize,\
 cse\
-""".translate(
-    str.maketrans("", "", " \n\t\r")
-)
+"""
 
 from contextlib import redirect_stdout
 from io import StringIO

@@ -1,4 +1,5 @@
 #include <cmath>
+#include <chrono>
 
 // define the domain size and the halo width
 int64_t domain_size = 64;
@@ -7,7 +8,7 @@ int64_t halo_width = 4;
 
 typedef double ElementType;
 
-#include "util.h"
+#include "cuda_util.h"
 
 #define Expand1dT ElementType*, ElementType*, int64_t, int64_t, int64_t
 #define Expand2dT ElementType*, ElementType*, int64_t, int64_t, int64_t, int64_t, int64_t
@@ -17,9 +18,10 @@ typedef double ElementType;
 #define Expand3d(X) (X.allocatedPtr), (X.alignedPtr), (X.offset), (X.sizes[0]), (X.sizes[1]), (X.sizes[2]), (X.strides[0]), (X.strides[1]), (X.strides[2])
 
 extern "C"{
-void fastwavesuv(Expand3dT, Expand3dT, Expand3dT, Expand3dT, Expand3dT, Expand3dT, Expand3dT, Expand3dT, Expand3dT, Expand3dT, Expand1dT fx, Expand3dT, Expand3dT, Expand3dT, Expand3dT, ElementType edadlat, ElementType dt);
+void fastwavesuv(Expand3dT, Expand3dT, Expand3dT, Expand3dT, Expand3dT, Expand3dT, Expand3dT, Expand3dT, Expand3dT, Expand3dT, Expand1dT);
 }
 // program times the execution of the linked program and times the result
+
 int main(int argc, char **argv) {
 
   if(argc == 3) {
@@ -48,13 +50,6 @@ int main(int argc, char **argv) {
   Storage3D uout = allocateStorage(sizes3D);
   Storage3D vout = allocateStorage(sizes3D);
   Storage1D fx = allocateStorage(size1D);
-  Storage3D ppgk = allocateStorage(sizes3D);
-  Storage3D ppgc = allocateStorage(sizes3D);
-  Storage3D ppgu = allocateStorage(sizes3D);
-  Storage3D ppgv = allocateStorage(sizes3D);
-
-  ElementType dt = 10.0;
-  ElementType edadlat = ldexpl(1.0, -11);
 
   fillMath(1.0, 3.3, 1.5, 1.5, 2.0, 4.0, uin, domain_size, domain_height);
   fillMath(1.1, 2.0, 1.5, 2.8, 2.0, 4.1, utens, domain_size, domain_height);
@@ -68,8 +63,40 @@ int main(int argc, char **argv) {
 
   initValue(uout, 0.0, domain_size, domain_height);
   initValue(vout, 0.0, domain_size, domain_height);
-  for(int i = 0; i < 10; i++)
-    fastwavesuv(Expand3d(uout), Expand3d(vout), Expand3d(uin), Expand3d(vin), Expand3d(utens), Expand3d(vtens), Expand3d(wgtfac), Expand3d(ppuv), Expand3d(hhl), Expand3d(rho), Expand1d(fx), Expand3d(ppgk), Expand3d(ppgc), Expand3d(ppgu), Expand3d(ppgv), edadlat, dt);
+
+  toDevice(uout);
+  toDevice(vout);
+  toDevice(uin);
+  toDevice(vin);
+  toDevice(utens);
+  toDevice(vtens);
+  toDevice(wgtfac);
+  toDevice(ppuv);
+  toDevice(hhl);
+  toDevice(rho);
+  toDevice(fx);
+
+  auto start = std::chrono::high_resolution_clock::now();
+
+  for(int i = 0; i < 512; i++)
+    fastwavesuv(Expand3d(uout), Expand3d(vout), Expand3d(uin), Expand3d(vin), Expand3d(utens), Expand3d(vtens), Expand3d(wgtfac), Expand3d(ppuv), Expand3d(hhl), Expand3d(rho), Expand1d(fx));
+
+  auto end = std::chrono::high_resolution_clock::now();
+  auto time = std::chrono::duration_cast<std::chrono::milliseconds>(end-start);
+  std::cout << time.count() << "ms" << std::endl;
+
+
+  toHost(uout);
+  toHost(vout);
+  toHost(uin);
+  toHost(vin);
+  toHost(utens);
+  toHost(vtens);
+  toHost(wgtfac);
+  toHost(ppuv);
+  toHost(hhl);
+  toHost(rho);
+  toHost(fx);
 
   // free the storage
   freeStorage(uin);
@@ -83,10 +110,6 @@ int main(int argc, char **argv) {
   freeStorage(uout);
   freeStorage(vout);
   freeStorage(fx);
-  freeStorage(ppgk);
-  freeStorage(ppgc);
-  freeStorage(ppgu);
-  freeStorage(ppgv);
 
   return 0;
 }
