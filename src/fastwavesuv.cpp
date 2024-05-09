@@ -1,5 +1,4 @@
 #include <cmath>
-#include <chrono>
 
 // define the domain size and the halo width
 int64_t domain_size = 64;
@@ -10,15 +9,8 @@ typedef double ElementType;
 
 #include "cuda_util.h"
 
-#define Expand1dT ElementType*, ElementType*, int64_t, int64_t, int64_t
-#define Expand2dT ElementType*, ElementType*, int64_t, int64_t, int64_t, int64_t, int64_t
-#define Expand3dT ElementType*, ElementType*, int64_t, int64_t, int64_t, int64_t, int64_t, int64_t, int64_t
-#define Expand1d(X) (X.allocatedPtr), (X.alignedPtr), (X.offset), (X.sizes[0]), (X.strides[0])
-#define Expand2d(X) (X.allocatedPtr), (X.alignedPtr), (X.offset), (X.sizes[0]), (X.sizes[1]), (X.strides[0]), (X.strides[1])
-#define Expand3d(X) (X.allocatedPtr), (X.alignedPtr), (X.offset), (X.sizes[0]), (X.sizes[1]), (X.sizes[2]), (X.strides[0]), (X.strides[1]), (X.strides[2])
-
 extern "C"{
-void fastwavesuv(Expand3dT, Expand3dT, Expand3dT, Expand3dT, Expand3dT, Expand3dT, Expand3dT, Expand3dT, Expand3dT, Expand3dT, Expand1dT);
+void fastwavesuv(LLVMMemref3DT, LLVMMemref3DT, LLVMMemref3DT, LLVMMemref3DT, LLVMMemref3DT, LLVMMemref3DT, LLVMMemref3DT, LLVMMemref3DT, LLVMMemref3DT, LLVMMemref3DT, LLVMMemref1DT);
 }
 // program times the execution of the linked program and times the result
 
@@ -76,15 +68,12 @@ int main(int argc, char **argv) {
   toDevice(rho);
   toDevice(fx);
 
-  auto start = std::chrono::high_resolution_clock::now();
+  TIMER_START();
 
   for(int i = 0; i < 512; i++)
-    fastwavesuv(Expand3d(uout), Expand3d(vout), Expand3d(uin), Expand3d(vin), Expand3d(utens), Expand3d(vtens), Expand3d(wgtfac), Expand3d(ppuv), Expand3d(hhl), Expand3d(rho), Expand1d(fx));
+    fastwavesuv(LLVMMemref3D(uout), LLVMMemref3D(vout), LLVMMemref3D(uin), LLVMMemref3D(vin), LLVMMemref3D(utens), LLVMMemref3D(vtens), LLVMMemref3D(wgtfac), LLVMMemref3D(ppuv), LLVMMemref3D(hhl), LLVMMemref3D(rho), LLVMMemref1D(fx));
 
-  auto end = std::chrono::high_resolution_clock::now();
-  auto time = std::chrono::duration_cast<std::chrono::milliseconds>(end-start);
-  std::cout << time.count() << "ms" << std::endl;
-
+  TIMER_STOP();
 
   toHost(uout);
   toHost(vout);

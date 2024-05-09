@@ -3,9 +3,25 @@
 
 #include <iostream>
 #include <array>
+#include <chrono>
 
 #define EARTH_RADIUS ((ElementType)6371.229e3) // radius of the earth
 #define EARTH_RADIUS_RECIP ((ElementType)1.0 / EARTH_RADIUS)
+
+
+// Some preprocessor helpers to go from Storage, a memref descriptor, to the LLVM exploded ABI.
+#define LLVMMemref1DT ElementType*, ElementType*, int64_t, int64_t, int64_t
+#define LLVMMemref2DT ElementType*, ElementType*, int64_t, int64_t, int64_t, int64_t, int64_t
+#define LLVMMemref3DT ElementType*, ElementType*, int64_t, int64_t, int64_t, int64_t, int64_t, int64_t, int64_t
+#define LLVMMemref1D(X) (X.allocatedPtr), (X.alignedPtr), (X.offset), (X.sizes[0]), (X.strides[0])
+#define LLVMMemref2D(X) (X.allocatedPtr), (X.alignedPtr), (X.offset), (X.sizes[0]), (X.sizes[1]), (X.strides[0]), (X.strides[1])
+#define LLVMMemref3D(X) (X.allocatedPtr), (X.alignedPtr), (X.offset), (X.sizes[0]), (X.sizes[1]), (X.sizes[2]), (X.strides[0]), (X.strides[1]), (X.strides[2])
+
+#define TIMER_START() auto start = std::chrono::high_resolution_clock::now()
+#define TIMER_STOP() auto end = std::chrono::high_resolution_clock::now(); \
+                     auto time = std::chrono::duration_cast<std::chrono::milliseconds>(end-start); \
+                     std::cout << "Elapsed time: " << time.count() << " ms\n"
+
 
 const ElementType pi(std::acos(-1.0));
 

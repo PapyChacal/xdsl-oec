@@ -21,11 +21,11 @@ CFLAGS += -I$(CUDA_INCLUDE_DIR) -Iinclude/ -lm -lstdc++ -O3 -fPIE -march=native
 	clang -o $@ src/$*.cpp $*_xdsl.o $(CFLAGS) -lmlir_cuda_runtime
 
 
-fastwavesuv: fastwavesuv_xdsl fastwavesuv_oec
+%: %_xdsl %_oec
 	module load llvm/xdsl &&\
-	./fastwavesuv_xdsl
+	./$*_xdsl 128 64
 
 	module load oec &&\
-	./fastwavesuv_oec
+	./$*_oec 128 64
 
-all: fastwavesuv
+all: fastwavesuv fvtp2d_flux

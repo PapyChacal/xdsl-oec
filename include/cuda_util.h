@@ -22,7 +22,7 @@ void toDevice(Storage1D& hostStorage){
     mgpuStreamSynchronize(stream);
     mgpuStreamDestroy(stream);
     hostStorage.allocatedPtr = reinterpret_cast<ElementType*>(dptr);
-    hostStorage.alignedPtr = &hostStorage.allocatedPtr[(32 - halo_width)];
+    hostStorage.alignedPtr = &hostStorage.allocatedPtr[(4 - halo_width)];
 }
 
 void toDevice(Storage2D& hostStorage){
@@ -35,7 +35,7 @@ void toDevice(Storage2D& hostStorage){
     mgpuStreamSynchronize(stream);
     mgpuStreamDestroy(stream);
     hostStorage.allocatedPtr = reinterpret_cast<ElementType*>(dptr);
-    hostStorage.alignedPtr = &hostStorage.allocatedPtr[(32 - halo_width)];
+    hostStorage.alignedPtr = &hostStorage.allocatedPtr[(4 - halo_width)];
     delete[] hptr;
 }
 
@@ -49,45 +49,45 @@ void toDevice(Storage3D& hostStorage){
     mgpuStreamSynchronize(stream);
     mgpuStreamDestroy(stream);
     hostStorage.allocatedPtr = reinterpret_cast<ElementType*>(dptr);
-    hostStorage.alignedPtr = &hostStorage.allocatedPtr[(32 - halo_width)];
+    hostStorage.alignedPtr = &hostStorage.allocatedPtr[(4 - halo_width)];
     delete[] hptr;
 }
 
 void toHost(Storage1D& hostStorage){
     ElementType* dptr = hostStorage.allocatedPtr;
     int64_t size = hostStorage.sizes[0] * sizeof(ElementType);
-    void* hptr = new ElementType[size + (32 - halo_width)];
+    void* hptr = new ElementType[size + (4 - halo_width)];
     auto stream = mgpuStreamCreate();
     mgpuMemcpy(hptr, dptr, size, stream);
     mgpuStreamSynchronize(stream);
     mgpuStreamDestroy(stream);
     hostStorage.allocatedPtr = reinterpret_cast<ElementType*>(hptr);
-    hostStorage.alignedPtr = &hostStorage.allocatedPtr[(32 - halo_width)];
+    hostStorage.alignedPtr = &hostStorage.allocatedPtr[(4 - halo_width)];
     mgpuMemFree(dptr, nullptr);
 }
 
 void toHost(Storage2D& hostStorage){
     ElementType* dptr = hostStorage.allocatedPtr;
     int64_t size = hostStorage.sizes[0] * hostStorage.sizes[1] * sizeof(ElementType);
-    void* hptr = new ElementType[size + (32 - halo_width)];
+    void* hptr = new ElementType[size + (4 - halo_width)];
     auto stream = mgpuStreamCreate();
     mgpuMemcpy(hptr, dptr, size, stream);
     mgpuStreamSynchronize(stream);
     mgpuStreamDestroy(stream);
     hostStorage.allocatedPtr = reinterpret_cast<ElementType*>(hptr);
-    hostStorage.alignedPtr = &hostStorage.allocatedPtr[(32 - halo_width)];
+    hostStorage.alignedPtr = &hostStorage.allocatedPtr[(4 - halo_width)];
     mgpuMemFree(dptr, nullptr);
 }
 
 void toHost(Storage3D& hostStorage){
     ElementType* dptr = hostStorage.allocatedPtr;
     int64_t size = hostStorage.sizes[0] * hostStorage.sizes[1] * hostStorage.sizes[2] * sizeof(ElementType);
-    void* hptr = new ElementType[size + (32 - halo_width)];
+    void* hptr = new ElementType[size + (4 - halo_width)];
     auto stream = mgpuStreamCreate();
     mgpuMemcpy(hptr, dptr, size, stream);
     mgpuStreamSynchronize(stream);
     mgpuStreamDestroy(stream);
     hostStorage.allocatedPtr = reinterpret_cast<ElementType*>(hptr);
-    hostStorage.alignedPtr = &hostStorage.allocatedPtr[(32 - halo_width)];
+    hostStorage.alignedPtr = &hostStorage.allocatedPtr[(4 - halo_width)];
     mgpuMemFree(dptr, nullptr);
 }
