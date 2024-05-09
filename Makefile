@@ -23,9 +23,9 @@ CFLAGS += -I$(CUDA_INCLUDE_DIR) -Iinclude/ -lm -lstdc++ -O3 -fPIE -march=native
 
 %: %_xdsl %_oec
 	module load llvm/xdsl &&\
-	./$*_xdsl 128 64
+	./$*_xdsl 64 64
 
 	module load oec &&\
-	./$*_oec 128 64
+	./$*_oec 64 64
 
 all: fastwavesuv fvtp2d_flux

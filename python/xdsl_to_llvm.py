@@ -1,4 +1,5 @@
 XDSL_PIPELINE = """\
+arith-add-fastmath,\
 stencil-storage-materialization,\
 stencil-shape-inference,\
 convert-stencil-to-ll-mlir,\
@@ -12,7 +13,7 @@ memref-to-gpu,\
 gpu-map-parallel-loops\
 """
 MLIR_PIPELINE = """\
-canonicalize,
+canonicalize,\
 convert-parallel-loops-to-gpu,\
 lower-affine,\
 canonicalize,\
@@ -36,8 +37,8 @@ convert-cf-to-llvm{index-bitwidth=64},\
 canonicalize,\
 cse,\
 convert-func-to-llvm{use-bare-ptr-memref-call-conv},\
-nvvm-attach-target{O=3 ftz fast chip=sm_$(nvidia-smi --query-gpu=compute_cap --format=csv,noheader | sed -e 's/\.//g')},\
-gpu.module(convert-gpu-to-nvvm,canonicalize,cse),\
+nvvm-attach-target{O=3 ftz fast triple=nvptx64-nvidia-cubin features=+ptx60 chip=sm_$(nvidia-smi --query-gpu=compute_cap --format=csv,noheader | sed -e 's/\.//g')},\
+gpu.module(strip-debuginfo,convert-gpu-to-nvvm,canonicalize,cse),\
 gpu-to-llvm,\
 gpu-module-to-binary,\
 canonicalize,\

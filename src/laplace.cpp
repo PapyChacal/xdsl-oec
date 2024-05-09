@@ -7,8 +7,11 @@ int64_t halo_width = 4;
 
 typedef double ElementType;
 
-#include "util.h"
-#include "laplace.h"
+#include "cuda_util.h"
+
+extern "C" {
+  void laplace(LLVMMemref3DT in, LLVMMemref3DT out);
+}
 
 // program times the execution of the linked program and times the result
 int main(int argc, char **argv) {
@@ -33,8 +36,17 @@ int main(int argc, char **argv) {
   fillMath(1.1, 2.0, 1.5, 2.8, 2.0, 4.1, in, domain_size, domain_height);
   initValue(out, 0.0, domain_size, domain_height);
 
+  toDevice(in);
+  toDevice(out);
+
+  TIMER_START();
   // computing the reference version
-  laplace(in, out);
+  for(int i = 0; i < 8192; i++)
+    laplace(LLVMMemref3D(in), LLVMMemref3D(out));
+  TIMER_STOP();
+
+  toHost(in);
+  toHost(out);
 
   // free the storage
   freeStorage(in);
