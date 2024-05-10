@@ -7,11 +7,14 @@ int64_t halo_width = 4;
 
 typedef double ElementType;
 
-const double dt = 225.0;
-const double dt5 = 0.5 * dt;
+#define p1 ElementType(0.583333)  // 7/12
+#define p2 ElementType(0.083333)  // 1/12
 
-#include "util.h"
-#include "uvbke.h"
+#include "cuda_util.h"
+
+extern "C" {
+void uvbke(LLVMMemref3DT, LLVMMemref3DT, LLVMMemref3DT, LLVMMemref3DT, LLVMMemref3DT, LLVMMemref3DT);
+}
 
 // program times the execution of the linked program and times the result
 int main(int argc, char **argv) {
@@ -28,35 +31,45 @@ int main(int argc, char **argv) {
   const std::array<int64_t, 3> sizes3D = { domain_size + 2*halo_width,
                                            domain_size + 2*halo_width,
                                            domain_height + 2*halo_width };
-
+  const int64_t size1D = domain_size + 2*halo_width;
 
   // allocate the storage
-  Storage3D uc  = allocateStorage(sizes3D);
-  Storage3D vc  = allocateStorage(sizes3D);
-  Storage3D cosa  = allocateStorage(sizes3D);
-  Storage3D rsina  = allocateStorage(sizes3D);
+  Storage3D arg0  = allocateStorage(sizes3D);
+  Storage3D arg1  = allocateStorage(sizes3D);
+  Storage3D arg2  = allocateStorage(sizes3D);
+  Storage3D arg3  = allocateStorage(sizes3D);
+  Storage3D arg4  = allocateStorage(sizes3D);
+  Storage3D arg5  = allocateStorage(sizes3D);
 
-  Storage3D ub = allocateStorage(sizes3D);
-  Storage3D vb = allocateStorage(sizes3D);
 
-  fillMath(1.0, 3.3, 1.5, 1.5, 2.0, 4.0, uc, domain_size, domain_height);
-  fillMath(1.1, 2.0, 1.5, 2.8, 2.0, 4.1, vc, domain_size, domain_height);
-  fillMath(4.0, 1.7, 1.5, 6.3, 2.0, 1.4, cosa, domain_size, domain_height);
-  fillMath(8.0, 9.4, 1.5, 1.7, 2.0, 3.5, rsina, domain_size, domain_height);
+  fillMath(1.0, 3.3, 1.5, 1.5, 2.0, 4.0, arg0, domain_size, domain_height);
+  fillMath(1.1, 2.0, 1.5, 2.8, 2.0, 4.1, arg1, domain_size, domain_height);
+  fillMath(8.0, 9.4, 1.5, 1.7, 2.0, 3.5, arg2, domain_size, domain_height);
+  fillMath(1.1, 2.0, 1.5, 2.8, 2.0, 4.1, arg3, domain_size, domain_height);
 
-  initValue(ub, -1.0, domain_size, domain_height);
-  initValue(vb, -1.0, domain_size, domain_height);
+  initValue(arg4, -1.0, domain_size, domain_height);
+  initValue(arg5, -1.0, domain_size, domain_height);
 
-  uvbke(ub, vb, uc, vc, cosa, rsina);
+
+  toDevice(arg0, arg1, arg2, arg3, arg4, arg5);
+
+
+  TIMER_START();
+
+  for(int i = 0; i < 512; i++)
+    uvbke(LLVMMemref3D(arg0), LLVMMemref3D(arg1), LLVMMemref3D(arg2), LLVMMemref3D(arg3), LLVMMemref3D(arg4), LLVMMemref3D(arg5));
+
+  TIMER_STOP();
+
+  toHost(arg0, arg1, arg2, arg3, arg4, arg5);
 
   // free the storage
-  freeStorage(uc);
-  freeStorage(vc);
-  freeStorage(cosa);
-  freeStorage(rsina);
-
-  freeStorage(ub);
-  freeStorage(vb);
+  freeStorage(arg0);
+  freeStorage(arg1);
+  freeStorage(arg2);
+  freeStorage(arg3);
+  freeStorage(arg4);
+  freeStorage(arg5);
 
   return 0;
 }
