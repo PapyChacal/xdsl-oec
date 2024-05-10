@@ -20,7 +20,7 @@
 #define TIMER_START() auto start = std::chrono::high_resolution_clock::now()
 #define TIMER_STOP() auto end = std::chrono::high_resolution_clock::now(); \
                      auto time = std::chrono::duration_cast<std::chrono::milliseconds>(end-start); \
-                     std::cout << "Elapsed time: " << time.count() << " ms\n"
+                     std::cout << time.count() << " ms\n"
 
 
 const ElementType pi(std::acos(-1.0));
