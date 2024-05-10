@@ -1,7 +1,7 @@
 
 
 module {
-  func @laplace(%arg0: !stencil.field<?x?x?xf64>, %arg1: !stencil.field<?x?x?xf64>, %arg2: !stencil.field<?x?x?xf64>, %arg3: !stencil.field<?x?x?xf64>, %arg4: !stencil.field<?x?x?xf64>, %arg5: !stencil.field<?x?x?xf64>, %arg6: !stencil.field<?x?x?xf64>, %arg7: !stencil.field<?x?x?xf64>, %arg8: !stencil.field<?x?x?xf64>, %arg9: !stencil.field<?x?x?xf64>, %arg10: !stencil.field<?xf64>) attributes {stencil.program} {
+  func @laplace(%arg0: !stencil.field<?x?x?xf64>, %arg1: !stencil.field<?x?x?xf64>) attributes {stencil.program} {
     %0 = stencil.cast %arg0 ([-4, -4, -4] : [68, 68, 68]) : (!stencil.field<?x?x?xf64>) -> (!stencil.field<72x72x72xf64>)
     %1 = stencil.cast %arg1 ([-4, -4, -4] : [68, 68, 68]) : (!stencil.field<?x?x?xf64>) -> (!stencil.field<72x72x72xf64>)
     %2 = stencil.load %0 : (!stencil.field<72x72x72xf64>) -> !stencil.temp<?x?x?xf64>

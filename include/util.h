@@ -10,12 +10,26 @@
 
 
 // Some preprocessor helpers to go from Storage, a memref descriptor, to the LLVM exploded ABI.
+
+#ifdef XDSL
+
+#define LLVMMemref1DT ElementType*
+#define LLVMMemref2DT ElementType*
+#define LLVMMemref3DT ElementType*
+#define LLVMMemref1D(X) (X.alignedPtr)
+#define LLVMMemref2D(X) (X.alignedPtr)
+#define LLVMMemref3D(X) (X.alignedPtr)
+
+#else
+
 #define LLVMMemref1DT ElementType*, ElementType*, int64_t, int64_t, int64_t
 #define LLVMMemref2DT ElementType*, ElementType*, int64_t, int64_t, int64_t, int64_t, int64_t
 #define LLVMMemref3DT ElementType*, ElementType*, int64_t, int64_t, int64_t, int64_t, int64_t, int64_t, int64_t
 #define LLVMMemref1D(X) (X.allocatedPtr), (X.alignedPtr), (X.offset), (X.sizes[0]), (X.strides[0])
 #define LLVMMemref2D(X) (X.allocatedPtr), (X.alignedPtr), (X.offset), (X.sizes[0]), (X.sizes[1]), (X.strides[0]), (X.strides[1])
 #define LLVMMemref3D(X) (X.allocatedPtr), (X.alignedPtr), (X.offset), (X.sizes[0]), (X.sizes[1]), (X.sizes[2]), (X.strides[0]), (X.strides[1]), (X.strides[2])
+
+#endif
 
 #define TIMER_START() auto start = std::chrono::high_resolution_clock::now()
 #define TIMER_STOP() auto end = std::chrono::high_resolution_clock::now(); \

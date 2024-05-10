@@ -1,16 +1,16 @@
 
 
 builtin.module {
-  func.func @p_grad_c(%arg0: !stencil.field<?x?x?xf64>, %arg1: !stencil.field<?x?x?xf64>, %arg2: !stencil.field<?x?x?xf64>, %arg3: !stencil.field<?x?x?xf64>, %arg4: !stencil.field<?x?x?xf64>, %arg5: !stencil.field<?x?x?xf64>, %arg6: !stencil.field<?x?x?xf64>, %arg7: !stencil.field<?x?x?xf64>, %arg8: !stencil.field<?x?x?xf64>) attributes {stencil.program} {
-    %0 = stencil.cast %arg0 : !stencil.field<?x?x?xf64> -> !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64>
-    %1 = stencil.cast %arg1 : !stencil.field<?x?x?xf64> -> !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64>
-    %2 = stencil.cast %arg2 : !stencil.field<?x?x?xf64> -> !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64>
-    %3 = stencil.cast %arg3 : !stencil.field<?x?x?xf64> -> !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64>
-    %4 = stencil.cast %arg4 : !stencil.field<?x?x?xf64> -> !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64>
-    %5 = stencil.cast %arg5 : !stencil.field<?x?x?xf64> -> !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64>
-    %6 = stencil.cast %arg6 : !stencil.field<?x?x?xf64> -> !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64>
-    %7 = stencil.cast %arg7 : !stencil.field<?x?x?xf64> -> !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64>
-    %8 = stencil.cast %arg8 : !stencil.field<?x?x?xf64> -> !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64>
+  func.func @p_grad_c(%arg0: !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64>, %arg1: !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64>, %arg2: !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64>, %arg3: !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64>, %arg4: !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64>, %arg5: !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64>, %arg6: !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64>, %arg7: !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64>, %arg8: !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64>) attributes {stencil.program} {
+    %0 = stencil.cast %arg0 : !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64> -> !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64>
+    %1 = stencil.cast %arg1 : !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64> -> !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64>
+    %2 = stencil.cast %arg2 : !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64> -> !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64>
+    %3 = stencil.cast %arg3 : !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64> -> !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64>
+    %4 = stencil.cast %arg4 : !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64> -> !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64>
+    %5 = stencil.cast %arg5 : !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64> -> !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64>
+    %6 = stencil.cast %arg6 : !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64> -> !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64>
+    %7 = stencil.cast %arg7 : !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64> -> !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64>
+    %8 = stencil.cast %arg8 : !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64> -> !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64>
     %9 = stencil.load %0 : !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64> -> !stencil.temp<?x?x?xf64>
     %10 = stencil.load %1 : !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64> -> !stencil.temp<?x?x?xf64>
     %11 = stencil.load %2 : !stencil.field<[-4,68]x[-4,68]x[-4,68]xf64> -> !stencil.temp<?x?x?xf64>

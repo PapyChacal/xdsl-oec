@@ -27,7 +27,7 @@ KERNELS_EXECUTABLES=$(addsuffix _oec, $(KERNELS)) $(addsuffix _xdsl, $(KERNELS))
 
 %_oec.o: kernels/oec/%.mlir
 	module load oec &&\
-	oec-opt $< --stencil-inlining --stencil-shape-inference --convert-stencil-to-std --cse --parallel-loop-tiling='parallel-loop-tile-sizes=128,1,1' --canonicalize --test-gpu-greedy-parallel-loop-mapping --convert-parallel-loops-to-gpu --canonicalize --cse --lower-affine --convert-scf-to-std --convert-gpu-to-nvvm --stencil-kernel-to-cubin | mlir-translate --mlir-to-llvmir | clang -c -x ir - -O3 -fPIE -o $@
+	oec-opt $< --stencil-inlining --stencil-shape-inference --convert-stencil-to-std --cse --parallel-loop-tiling='parallel-loop-tile-sizes=32,4,8' --canonicalize --test-gpu-greedy-parallel-loop-mapping --convert-parallel-loops-to-gpu --canonicalize --cse --lower-affine --convert-scf-to-std --convert-gpu-to-nvvm --stencil-kernel-to-cubin | mlir-translate --mlir-to-llvmir | clang -c -x ir - -O3 -fPIE -o $@
 
 %_oec: %_oec.o src/%.cpp include/util.h include/cuda_util.h
 	module load oec &&\
@@ -39,7 +39,7 @@ KERNELS_EXECUTABLES=$(addsuffix _oec, $(KERNELS)) $(addsuffix _xdsl, $(KERNELS))
 
 %_xdsl: %_xdsl.o src/%.cpp include/util.h include/cuda_util.h
 	module load llvm/xdsl &&\
-	clang -o $@ src/$*.cpp $*_xdsl.o $(CFLAGS) -lmlir_cuda_runtime
+	clang -o $@ -DXDSL src/$*.cpp $*_xdsl.o $(CFLAGS) -lmlir_cuda_runtime
 
 
 $(KERNELS): %: %_xdsl %_oec ;
