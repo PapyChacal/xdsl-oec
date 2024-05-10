@@ -12,8 +12,10 @@ extern "C" {
     void mgpuMemFree(void *ptr, CUstream /*stream*/);
 }
 
-template<typename Storage>
-void toDevice(Storage& hostStorage){
+void toDevice(){};
+
+template<typename StorageH, typename...StorageT>
+void toDevice(StorageH& hostStorage, StorageT&...hostStorages){
     void* hptr = hostStorage.allocatedPtr;
     int64_t size = hostStorage.size();
     int64_t byte_size = (size + (4 - halo_width))*sizeof(ElementType);
@@ -24,10 +26,14 @@ void toDevice(Storage& hostStorage){
     mgpuStreamDestroy(stream);
     hostStorage.allocatedPtr = reinterpret_cast<ElementType*>(dptr);
     hostStorage.alignedPtr = &hostStorage.allocatedPtr[(4 - halo_width)];
+
+    toDevice(hostStorages...);
 }
 
-template<typename Storage>
-void toHost(Storage& hostStorage){
+void toHost(){};
+
+template<typename StorageH, typename...StorageT>
+void toHost(StorageH& hostStorage, StorageT&...hostStorages){
     ElementType* dptr = hostStorage.allocatedPtr;
     int64_t size = hostStorage.size();
     void* hptr = new ElementType[size + (4 - halo_width)];
@@ -38,4 +44,6 @@ void toHost(Storage& hostStorage){
     hostStorage.allocatedPtr = reinterpret_cast<ElementType*>(hptr);
     hostStorage.alignedPtr = &hostStorage.allocatedPtr[(4 - halo_width)];
     mgpuMemFree(dptr, nullptr);
+
+    toHost(hostStorages...);
 }

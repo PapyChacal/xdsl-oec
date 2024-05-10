@@ -36,8 +36,7 @@ int main(int argc, char **argv) {
   fillMath(1.1, 2.0, 1.5, 2.8, 2.0, 4.1, in, domain_size, domain_height);
   initValue(out, 0.0, domain_size, domain_height);
 
-  toDevice(in);
-  toDevice(out);
+  toDevice(in, out);
 
   TIMER_START();
   // computing the reference version
@@ -45,8 +44,7 @@ int main(int argc, char **argv) {
     laplace(LLVMMemref3D(in), LLVMMemref3D(out));
   TIMER_STOP();
 
-  toHost(in);
-  toHost(out);
+  toHost(in, out);
 
   // free the storage
   freeStorage(in);

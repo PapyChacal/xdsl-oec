@@ -55,15 +55,7 @@ int main(int argc, char **argv) {
 
   initValue(arg8, -1.0, domain_size, domain_height);
 
-  toDevice(arg0);
-  toDevice(arg1);
-  toDevice(arg2);
-  toDevice(arg3);
-  toDevice(arg4);
-  toDevice(arg5);
-  toDevice(arg6);
-  toDevice(arg7);
-  toDevice(arg8);
+  toDevice(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 
 
   TIMER_START();
@@ -73,16 +65,7 @@ int main(int argc, char **argv) {
 
   TIMER_STOP();
 
-
-  toHost(arg0);
-  toHost(arg1);
-  toHost(arg2);
-  toHost(arg3);
-  toHost(arg4);
-  toHost(arg5);
-  toHost(arg6);
-  toHost(arg7);
-  toHost(arg8);
+  toHost(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 
   // free the storage
   freeStorage(arg0);

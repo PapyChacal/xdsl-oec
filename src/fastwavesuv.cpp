@@ -56,17 +56,7 @@ int main(int argc, char **argv) {
   initValue(uout, 0.0, domain_size, domain_height);
   initValue(vout, 0.0, domain_size, domain_height);
 
-  toDevice(uout);
-  toDevice(vout);
-  toDevice(uin);
-  toDevice(vin);
-  toDevice(utens);
-  toDevice(vtens);
-  toDevice(wgtfac);
-  toDevice(ppuv);
-  toDevice(hhl);
-  toDevice(rho);
-  toDevice(fx);
+  toDevice(uout, vout, uin, vin, utens, vtens, wgtfac, ppuv, hhl, rho, fx);
 
   TIMER_START();
 
@@ -75,17 +65,7 @@ int main(int argc, char **argv) {
 
   TIMER_STOP();
 
-  toHost(uout);
-  toHost(vout);
-  toHost(uin);
-  toHost(vin);
-  toHost(utens);
-  toHost(vtens);
-  toHost(wgtfac);
-  toHost(ppuv);
-  toHost(hhl);
-  toHost(rho);
-  toHost(fx);
+  toHost(uout, vout, uin, vin, utens, vtens, wgtfac, ppuv, hhl, rho, fx);
 
   // free the storage
   freeStorage(uin);
