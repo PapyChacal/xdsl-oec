@@ -2,6 +2,8 @@
 #include "cuda.h"
 #include "util.h"
 
+//xDSL: those are provided in MLIR's `mlir_cuda_runtime`
+//OEC: MLIR's `cuda-runtime-wrappers`
 extern "C" {
     CUstream mgpuStreamCreate();
     void mgpuStreamDestroy(CUstream stream);
