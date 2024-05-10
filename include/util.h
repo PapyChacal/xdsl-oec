@@ -53,6 +53,14 @@ struct Storage {
 
    template<typename... T>
    const ElementType &operator()(type<T...>, T... arg) const;
+
+   const int64_t size() const {
+        int64_t result = sizes[0];
+        for (size_t i = 1; i < Rank; i++) {
+            result *= sizes[i];
+        }
+        return result * sizeof(ElementType);
+   }
 };
 
 typedef Storage<ElementType, 1> Storage1D;
