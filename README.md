@@ -1,6 +1,6 @@
 # xDSL - Open Earth Compiler comparison
 
-This repository contains the 10 kernels used in [the original Open Earth Compiler (OEC) paper](https://dl.acm.org/doi/abs/10.1145/3469030), with an additional trivial laplace kernel, to have a simple kernel to compare on too.
+This repository contains the 10 kernels used in [the original Open Earth Compiler (OEC) paper](https://dl.acm.org/doi/abs/10.1145/3469030), taken unmodified from [OEC's repository](https://github.com/spcl/open-earth-compiler), with an additional trivial laplace kernel, to have a simple kernel to compare on too.
 
 [xDSL](https://xdsl.dev/) [reimplements the stencil dialect with a few variations and additions](https://dl.acm.org/doi/10.1145/3620666.3651344), but also missing features at the time of writing.
 
