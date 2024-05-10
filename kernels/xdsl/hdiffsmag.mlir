@@ -122,7 +122,7 @@ builtin.module {
       %32 = arith.addf %30, %31 : f64
       %33 = arith.mulf %32, %cst_1 : f64
       %34 = arith.addf %29, %33 : f64
-      %35 = sqrt %34 : f64
+      %35 = "math.sqrt"(%34) : (f64) -> f64
       %36 = arith.mulf %35, %cst : f64
       %37 = arith.subf %36, %25 : f64
       %38 = arith.cmpf ogt, %37, %cst_2 : f64
@@ -152,7 +152,7 @@ builtin.module {
       %32 = arith.addf %30, %31 : f64
       %33 = arith.mulf %32, %cst_1 : f64
       %34 = arith.addf %29, %33 : f64
-      %35 = sqrt %34 : f64
+      %35 = "math.sqrt"(%34) : (f64) -> f64
       %36 = arith.mulf %35, %cst : f64
       %37 = arith.subf %36, %25 : f64
       %38 = arith.cmpf ogt, %37, %cst_2 : f64
