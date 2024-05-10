@@ -18,6 +18,8 @@ Thus, the benchmarking assumes:
 - `module load llvm` makes xDSL's expected MLIR and clang version available in the env and ready to use.
 - CUDA is available, with its main header hardcoded at `/opt/cuda/include` for now.
 
+Some of this could be streamlined/automated on request, it's just what made sense in my context so far.
+
 
 Right now, a simple Makefile is provided. `make run -j N` builds all kernels parallely and run them sequentially printing basic overall runtime of each compilation flow.
 
