@@ -5,7 +5,16 @@ CUDA_INCLUDE_DIR=/opt/cuda/include/
 CFLAGS += -I$(CUDA_INCLUDE_DIR) -Iinclude/ -lm -lstdc++ -O3 -fPIE -march=native
 
 # hdiffsmag does not compile on OEC's side for now, weird sqrt error.
-KERNELS=laplace fastwavesuv fvtp2d_flux fvtp2d_qi fvtp2d_qj hadvuv hadvuv5th hdiffsa 
+KERNELS=\
+laplace \
+fastwavesuv \
+fvtp2d_flux \
+fvtp2d_qi \
+fvtp2d_qj \
+hadvuv \
+hadvuv5th \
+hdiffsa \
+nh_p_grad
 RUN_KERNELS=$(addprefix run_, $(KERNELS))
 KERNELS_EXECUTABLES=$(addsuffix _oec, $(KERNELS)) $(addsuffix _xdsl, $(KERNELS))
 
