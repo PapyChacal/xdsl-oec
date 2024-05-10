@@ -14,7 +14,9 @@ fvtp2d_qj \
 hadvuv \
 hadvuv5th \
 hdiffsa \
-nh_p_grad
+nh_p_grad \
+p_grad_c \
+
 RUN_KERNELS=$(addprefix run_, $(KERNELS))
 KERNELS_EXECUTABLES=$(addsuffix _oec, $(KERNELS)) $(addsuffix _xdsl, $(KERNELS))
 

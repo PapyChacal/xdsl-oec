@@ -7,8 +7,14 @@ int64_t halo_width = 4;
 
 typedef double ElementType;
 
-#include "util.h"
-#include "p_grad_c.h"
+#define p1 ElementType(0.583333)  // 7/12
+#define p2 ElementType(0.083333)  // 1/12
+
+#include "cuda_util.h"
+
+extern "C" {
+void p_grad_c(LLVMMemref3DT, LLVMMemref3DT, LLVMMemref3DT, LLVMMemref3DT, LLVMMemref3DT, LLVMMemref3DT, LLVMMemref3DT, LLVMMemref3DT, LLVMMemref3DT);
+}
 
 // program times the execution of the linked program and times the result
 int main(int argc, char **argv) {
@@ -22,50 +28,57 @@ int main(int argc, char **argv) {
       exit(1);
   }
 
-  const int64_t size1D = domain_size + 2*halo_width;
   const std::array<int64_t, 3> sizes3D = { domain_size + 2*halo_width,
                                            domain_size + 2*halo_width,
                                            domain_height + 2*halo_width };
+  const int64_t size1D = domain_size + 2*halo_width;
 
   // allocate the storage
-  Storage3D uin = allocateStorage(sizes3D);
-  Storage3D vin = allocateStorage(sizes3D);
-  Storage3D rdxc = allocateStorage(sizes3D);
-  Storage3D rdyc = allocateStorage(sizes3D);
-  Storage3D delpc = allocateStorage(sizes3D);
-  Storage3D gz = allocateStorage(sizes3D);
-  Storage3D pkc = allocateStorage(sizes3D);
-  Storage3D uout = allocateStorage(sizes3D);
-  Storage3D vout = allocateStorage(sizes3D);
-  Storage3D wk = allocateStorage(sizes3D);
+  Storage3D arg0  = allocateStorage(sizes3D);
+  Storage3D arg1  = allocateStorage(sizes3D);
+  Storage3D arg2  = allocateStorage(sizes3D);
+  Storage3D arg3  = allocateStorage(sizes3D);
+  Storage3D arg4  = allocateStorage(sizes3D);
+  Storage3D arg5  = allocateStorage(sizes3D);
+  Storage3D arg6  = allocateStorage(sizes3D);
+  Storage3D arg7  = allocateStorage(sizes3D);
+  Storage3D arg8  = allocateStorage(sizes3D);
 
 
-  ElementType dt2 = 0.1;
+  fillMath(1.0, 3.3, 1.5, 1.5, 2.0, 4.0, arg0, domain_size, domain_height);
+  fillMath(1.1, 2.0, 1.5, 2.8, 2.0, 4.1, arg1, domain_size, domain_height);
+  fillMath(8.0, 9.4, 1.5, 1.7, 2.0, 3.5, arg2, domain_size, domain_height);
+  fillMath(1.1, 2.0, 1.5, 2.8, 2.0, 4.1, arg3, domain_size, domain_height);
+  fillMath(1.0, 3.3, 1.5, 1.5, 2.0, 4.0, arg4, domain_size, domain_height);
+  fillMath(1.1, 2.0, 1.5, 2.8, 2.0, 4.1, arg5, domain_size, domain_height);
+  fillMath(8.0, 9.4, 1.5, 1.7, 2.0, 3.5, arg6, domain_size, domain_height);
 
-  fillMath(1.0, 3.3, 1.5, 1.5, 2.0, 4.0, uin, domain_size, domain_height);
-  fillMath(1.1, 2.0, 1.5, 2.8, 2.0, 4.1, vin, domain_size, domain_height);
-  fillMath(1.1, 2.0, 1.5, 2.8, 2.0, 4.1, rdxc, domain_size, domain_height);
-  fillMath(8.0, 9.4, 1.5, 1.7, 2.0, 3.5, rdyc, domain_size, domain_height);
-  fillMath(8.0, 9.4, 1.5, 1.7, 2.0, 3.5, delpc, domain_size, domain_height);
-  fillMath(5.0, 8.0, 1.5, 7.1, 2.0, 4.3, gz, domain_size, domain_height);
-  fillMath(5.0, 8.0, 1.5, 7.1, 2.0, 4.3, pkc, domain_size, domain_height);
+  initValue(arg7, -1.0, domain_size, domain_height);
+  initValue(arg8, -1.0, domain_size, domain_height);
 
-  initValue(uout, 0.0, domain_size, domain_height);
-  initValue(vout, 0.0, domain_size, domain_height);
 
-  p_grad_c(uout, vout, uin, vin, rdxc, rdyc, delpc, gz, pkc, wk, dt2);
+  toDevice(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+
+
+  TIMER_START();
+
+  for(int i = 0; i < 512; i++)
+    p_grad_c(LLVMMemref3D(arg0), LLVMMemref3D(arg1), LLVMMemref3D(arg2), LLVMMemref3D(arg3), LLVMMemref3D(arg4), LLVMMemref3D(arg5), LLVMMemref3D(arg6), LLVMMemref3D(arg7), LLVMMemref3D(arg8));
+
+  TIMER_STOP();
+
+  toHost(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 
   // free the storage
-  freeStorage(uin);
-  freeStorage(vin);
-  freeStorage(rdxc);
-  freeStorage(rdyc);
-  freeStorage(delpc);
-  freeStorage(gz);
-  freeStorage(pkc);
-  freeStorage(uout);
-  freeStorage(vout);
-  freeStorage(wk);
+  freeStorage(arg0);
+  freeStorage(arg1);
+  freeStorage(arg2);
+  freeStorage(arg3);
+  freeStorage(arg4);
+  freeStorage(arg5);
+  freeStorage(arg6);
+  freeStorage(arg7);
+  freeStorage(arg8);
 
   return 0;
 }
