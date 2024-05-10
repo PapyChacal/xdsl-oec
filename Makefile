@@ -4,7 +4,7 @@ CUDA_INCLUDE_DIR=/opt/cuda/include/
 
 CFLAGS += -I$(CUDA_INCLUDE_DIR) -Iinclude/ -lm -lstdc++ -O3 -fPIE -march=native
 
-KERNELS=laplace fastwavesuv fvtp2d_flux fvtp2d_qi fvtp2d_qj hadvuv
+KERNELS=laplace fastwavesuv fvtp2d_flux fvtp2d_qi fvtp2d_qj hadvuv hadvuv5th
 RUN_KERNELS=$(addprefix run_, $(KERNELS))
 KERNELS_EXECUTABLES=$(addsuffix _oec, $(KERNELS)) $(addsuffix _xdsl, $(KERNELS))
 
