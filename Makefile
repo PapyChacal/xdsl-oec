@@ -4,12 +4,13 @@ CUDA_INCLUDE_DIR=/opt/cuda/include/
 
 CFLAGS += -I$(CUDA_INCLUDE_DIR) -Iinclude/ -lm -lstdc++ -O3 -fPIE -march=native
 
-KERNELS=laplace fastwavesuv fvtp2d_flux fvtp2d_qi fvtp2d_qj hadvuv hadvuv5th
+KERNELS=laplace fastwavesuv fvtp2d_flux fvtp2d_qi fvtp2d_qj hadvuv hadvuv5th hdiffsa
 RUN_KERNELS=$(addprefix run_, $(KERNELS))
 KERNELS_EXECUTABLES=$(addsuffix _oec, $(KERNELS)) $(addsuffix _xdsl, $(KERNELS))
 
 
 .PHONY: run $(RUN_KERNELS) clean
+.NOTPARALLEL: run_indeed
 
 %_oec.o: kernels/oec/%.mlir
 	module load oec &&\
@@ -41,6 +42,8 @@ $(RUN_KERNELS): run_%: %
 	echo "Running xDSL's $*...";\
 	./$*_xdsl 64 64;\
 
-run: $(RUN_KERNELS);
+run_indeed: $(RUN_KERNELS);
+
+run: $(KERNELS) .WAIT run_indeed;
 
 all: run;

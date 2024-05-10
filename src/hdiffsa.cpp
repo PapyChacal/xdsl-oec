@@ -7,8 +7,14 @@ int64_t halo_width = 4;
 
 typedef double ElementType;
 
-#include "util.h"
-#include "hdiffsa.h"
+#define p1 ElementType(0.583333)  // 7/12
+#define p2 ElementType(0.083333)  // 1/12
+
+#include "cuda_util.h"
+
+extern "C" {
+void hdiffsa(LLVMMemref3DT, LLVMMemref3DT, LLVMMemref3DT, LLVMMemref1DT, LLVMMemref1DT);
+}
 
 // program times the execution of the linked program and times the result
 int main(int argc, char **argv) {
@@ -22,39 +28,44 @@ int main(int argc, char **argv) {
       exit(1);
   }
 
-  const int64_t size1D = domain_size + 2*halo_width;
   const std::array<int64_t, 3> sizes3D = { domain_size + 2*halo_width,
                                            domain_size + 2*halo_width,
                                            domain_height + 2*halo_width };
+  const int64_t size1D = domain_size + 2*halo_width;
 
-  Storage3D in = allocateStorage(sizes3D);
-  Storage3D mask = allocateStorage(sizes3D);
-  Storage3D out = allocateStorage(sizes3D);
-  Storage1D crlato = allocateStorage(size1D);
-  Storage1D crlatu = allocateStorage(size1D);
-  Storage3D lap = allocateStorage(sizes3D);
-  Storage3D flx = allocateStorage(sizes3D);
-  Storage3D fly = allocateStorage(sizes3D);
+  // allocate the storage
+  Storage3D arg0  = allocateStorage(sizes3D);
+  Storage3D arg1  = allocateStorage(sizes3D);
+  Storage3D arg2  = allocateStorage(sizes3D);
+  Storage1D arg3  = allocateStorage(size1D);
+  Storage1D arg4  = allocateStorage(size1D);
 
-  fillMath(1.1, 2.0, 1.5, 2.8, 2.0, 4.1, in, domain_size, domain_height);
-  fillMath(8.0, 9.4, 1.5, 1.7, 2.0, 3.5, crlato, domain_size, domain_height);
-  fillMath(8.0, 9.4, 1.5, 1.7, 2.0, 3.5, crlatu, domain_size, domain_height);
-  initValue(mask, 0.025, domain_size, domain_height);
-  initValue(out, 0.0, domain_size, domain_height);
 
-  std::cout << "-> starting verification" << std::endl;
+  fillMath(1.0, 3.3, 1.5, 1.5, 2.0, 4.0, arg0, domain_size, domain_height);
+  fillMath(1.1, 2.0, 1.5, 2.8, 2.0, 4.1, arg1, domain_size, domain_height);
+  initValue(arg2, -1.0, domain_size, domain_height);
+  fillMath(8.0, 9.4, 1.5, 1.7, 2.0, 3.5, arg3, domain_size, domain_height);
+  fillMath(1.1, 2.0, 1.5, 2.8, 2.0, 4.1, arg4, domain_size, domain_height);
 
-  hdiffsa(in, mask, out, crlato, crlatu, lap, flx, fly);
+
+  toDevice(arg0, arg1, arg2, arg3, arg4);
+
+
+  TIMER_START();
+
+  for(int i = 0; i < 512; i++)
+    hdiffsa(LLVMMemref3D(arg0), LLVMMemref3D(arg1), LLVMMemref3D(arg2), LLVMMemref1D(arg3), LLVMMemref1D(arg4));
+
+  TIMER_STOP();
+
+  toHost(arg0, arg1, arg2, arg3, arg4);
 
   // free the storage
-  freeStorage(in);
-  freeStorage(mask);
-  freeStorage(out);
-  freeStorage(crlato);
-  freeStorage(crlatu);
-  freeStorage(lap);
-  freeStorage(flx);
-  freeStorage(fly);
+  freeStorage(arg0);
+  freeStorage(arg1);
+  freeStorage(arg2);
+  freeStorage(arg3);
+  freeStorage(arg4);
 
   return 0;
 }
